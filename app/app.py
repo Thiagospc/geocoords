@@ -1,4 +1,3 @@
-# openpyxl
 import os
 import PySimpleGUIQt as sg
 import pandas as pd
@@ -43,18 +42,27 @@ def exibe_mapa(df):
     pass
 
 def run_app():
-    sg.set_options(background_color="#90EE90")
+    sg.set_options(background_color="#4CAF50")
     estilo_botao = {"size": (12, 1), "border_width": 2}
+    bg_color = sg.theme_background_color()
+    estilo_texto = {"font": ("Arial", 10, "bold"), "background_color": bg_color, "text_color": "black"}
     headings = ["ID", "Nome", "Latitude", "Longitude", "Descrição"]
     
     layout = [
-        [sg.Text("Selecione um Arquivo CSV ou Excel:", font=("Arial", 10, "bold"))],
-        [sg.Input(size=(30, 1), key="-FILE-"), sg.FileBrowse("Importar", size=(10, 1))],
+        [sg.Text("Selecione um Arquivo CSV ou Excel:", **estilo_texto)],
         [
-            sg.Button("Vizualizar", **estilo_botao),
-            sg.Button("Editar", **estilo_botao),
-            sg.Button("Gerar Mapa", size=(16, 1), border_width=2),
+            sg.Input(size=(50, 1), key="-FILE-"), 
+            sg.FileBrowse("Importar", size=(10, 1)), 
+            sg.Button("Vizualizar", **estilo_botao), 
+            sg.Button("Editar", **estilo_botao), 
+            sg.Button("Gerar Mapa", size=(16, 1), border_width=2), 
+            sg.Button("Adicionar", **estilo_botao), 
+            sg.Button("Salvar Edição", **estilo_botao)
         ],
+        [sg.Text("Editar Linha (id, nome, latitude, longitude, descricao):", **estilo_texto)],
+        [sg.Input(size=(5, 1), key="-ID-"), sg.Input(size=(15, 1), key="-NOME-"),
+        sg.Input(size=(10, 1), key="-LATITUDE-"), sg.Input(size=(10, 1), key="-LONGITUDE-"),
+        sg.Input(size=(25, 1), key="-DESCRICAO-")],
         [sg.Table(
                 values=[[]], 
                 headings=headings,
@@ -63,13 +71,7 @@ def run_app():
                 key="-TABLE-",
                 enable_events=True, col_widths=[10, 20, 15, 15, 30], num_rows=10,
                 alternating_row_color="lightblue"
-            )],
-        [sg.Text("Editar Linha (id, nome, latitude, longitude, descricao):")],
-        [sg.Input(size=(5, 1), key="-ID-"), sg.Input(size=(15, 1), key="-NOME-"),
-        sg.Input(size=(10, 1), key="-LATITUDE-"), sg.Input(size=(10, 1), key="-LONGITUDE-"),
-        sg.Input(size=(25, 1), key="-DESCRICAO-")],
-        [sg.Button("Adicionar", **estilo_botao)],
-        [sg.Button("Salvar Edição", **estilo_botao)]
+            )]     
     ]
 
     janela = sg.Window("GeoCoords", layout=layout)
