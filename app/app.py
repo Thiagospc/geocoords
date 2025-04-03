@@ -54,8 +54,46 @@ def adicionar_no_excel(id, nome, latitude, longitude, descricao):
     except Exception as e:
         sg.popup_error(f"Erro ao adicionar dados: {e}")
 
-def exibe_mapa(df):
-    pass
+def gerar_mapa(caminho_arquivo):
+    try:
+        df = pd.read_excel(caminho_arquivo, dtype={"Latitude": float, "Longitude": float})
+
+        # Verifica se há dados no arquivo
+        if df.empty:
+            sg.popup_error("O arquivo não contém dados válidos.")
+            return
+
+        # Verifica e corrige o formato decimal (caso os números estejam com vírgulas)
+        df["Latitude"] = df["Latitude"].astype(str).str.replace(",", ".").astype(float)
+        df["Longitude"] = df["Longitude"].astype(str).str.replace(",", ".").astype(float)
+
+        # Filtra coordenadas inválidas
+        df = df[(df["Latitude"].between(-90, 90)) & (df["Longitude"].between(-180, 180))]
+
+        if df.empty:
+            sg.popup_error("Nenhuma coordenada válida encontrada no arquivo.")
+            return
+        
+        # Centraliza o mapa na média das coordenadas
+        media_lat = df["Latitude"].mean()
+        media_lon = df["Longitude"].mean()
+        mapa = folium.Map(location=[media_lat, media_lon], zoom_start=5)
+
+        # Adiciona marcadores ao mapa
+        for _, row in df.iterrows():
+            folium.Marker(
+                location=[row["Latitude"], row["Longitude"]],
+                popup=f"{row['Nome']} - {row['Descrição']}",
+                tooltip=row["Nome"]
+            ).add_to(mapa)
+
+        # Caminho para salvar o arquivo
+        caminho_mapa = os.path.join(BASE_DIR, "..", "arquivos", "mapa.html")
+        mapa.save(caminho_mapa)
+        sg.popup("Mapa gerado com sucesso!", f"Arquivo salvo em: {caminho_mapa}")
+
+    except Exception as e:
+        sg.popup_error(f"Erro ao gerar o mapa: {e}")
 
 def run_app():
     # configuração do layout
@@ -145,7 +183,7 @@ def run_app():
             print("Salvar Edição")
             
         if event == "Gerar Mapa":
-            print("Gerar Mapa")
+            gerar_mapa(CAMINHO_ARQUIVO)
 
     janela.close()
 
