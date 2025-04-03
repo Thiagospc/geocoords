@@ -42,6 +42,7 @@ def exibe_mapa(df):
     pass
 
 def run_app():
+    # configuração do layout
     sg.set_options(background_color="#4CAF50")
     estilo_botao = {"size": (12, 1), "border_width": 2}
     bg_color = sg.theme_background_color()
@@ -49,21 +50,31 @@ def run_app():
     headings = ["ID", "Nome", "Latitude", "Longitude", "Descrição"]
     
     layout = [
-        [sg.Text("Selecione um Arquivo CSV ou Excel:", **estilo_texto)],
         [
-            sg.Input(size=(50, 1), key="-FILE-"), 
-            sg.FileBrowse("Importar", size=(10, 1)), 
-            sg.Button("Vizualizar", **estilo_botao), 
-            sg.Button("Editar", **estilo_botao), 
-            sg.Button("Gerar Mapa", size=(16, 1), border_width=2), 
-            sg.Button("Adicionar", **estilo_botao), 
-            sg.Button("Salvar Edição", **estilo_botao)
+            sg.Text("Selecione um Arquivo CSV ou Excel:", **estilo_texto)
         ],
-        [sg.Text("Editar Linha (id, nome, latitude, longitude, descricao):", **estilo_texto)],
-        [sg.Input(size=(5, 1), key="-ID-"), sg.Input(size=(15, 1), key="-NOME-"),
-        sg.Input(size=(10, 1), key="-LATITUDE-"), sg.Input(size=(10, 1), key="-LONGITUDE-"),
-        sg.Input(size=(25, 1), key="-DESCRICAO-")],
-        [sg.Table(
+        [
+            sg.Input(size=(65, 1), key="-FILE-"), 
+            sg.FileBrowse("Importar", size=(12, 1)), 
+            sg.Button("Vizualizar", **estilo_botao),
+            sg.Button("Gerar Mapa", **estilo_botao)
+        ],
+        [
+            sg.Text("Editar Linha (id, nome, latitude, longitude, descricao):", **estilo_texto)
+        ],
+        [
+            sg.Input(size=(5, 1), key="-ID-"), 
+            sg.Input(size=(15, 1), key="-NOME-"),
+            sg.Input(size=(10, 1), key="-LATITUDE-"), 
+            sg.Input(size=(10, 1), key="-LONGITUDE-"),
+            sg.Input(size=(25, 1), key="-DESCRICAO-"),
+            sg.Button("Adicionar", **estilo_botao),
+            sg.Button("Editar", **estilo_botao),   
+            sg.Button("Salvar Edição", **estilo_botao)
+            
+        ],
+        [
+            sg.Table(
                 values=[[]], 
                 headings=headings,
                 auto_size_columns=False, 
@@ -71,7 +82,8 @@ def run_app():
                 key="-TABLE-",
                 enable_events=True, col_widths=[10, 20, 15, 15, 30], num_rows=10,
                 alternating_row_color="lightblue"
-            )]     
+            )
+        ]     
     ]
 
     janela = sg.Window("GeoCoords", layout=layout)
@@ -93,19 +105,16 @@ def run_app():
                     sg.popup_error("O arquivo está vazio ou não contém dados válidos.")
 
         if event == "Adicionar":
-            id = values["-ID-"]
-            nome = values["-NOME-"]
-            latitude = values["-LATITUDE-"]
-            longitude = values["-LONGITUDE-"]
-            descricao = values["-DESCRICAO-"]
-
-            if id and nome and latitude and longitude and descricao:
-                adicionar_no_excel(id, nome, latitude, longitude, descricao)
-            else:
-                sg.popup_error("Preencha todos os campos antes de adicionar.")
-                    
+            print("Adicionar")
+        
+        if event == "Editar":
+            print("Editar")
+            
+        if event == "Salvar Edição":
+            print("Salvar Edição")
+            
         if event == "Gerar Mapa":
-            pass
+            print("Gerar Mapa")
 
     janela.close()
 
