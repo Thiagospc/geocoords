@@ -1,7 +1,9 @@
 import os
 import PySimpleGUIQt as sg
 import pandas as pd
+import openpyxl
 import folium
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CAMINHO_ARQUIVO = os.path.join(BASE_DIR, "..", "arquivos", "dados.xlsx")
@@ -19,22 +21,36 @@ def vizualizar_dados(caminho):
     except Exception as e:
         sg.popup_error(f"Erro ao vizualizar dados: {e}")
         return pd.DataFrame()
+
+def criar_arquivo_se_necessario():
+    if not os.path.exists(CAMINHO_ARQUIVO):
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.append(["ID", "Nome", "Latitude", "Longitude", "Descrição"])
+        wb.save(CAMINHO_ARQUIVO)
     
 def adicionar_no_excel(id, nome, latitude, longitude, descricao):
     try:
-        leitura = pd.read_excel(CAMINHO_ARQUIVO)
-
-        nova_linha = {
-            "ID": id,
-            "Nome": nome,
-            "Latitude": latitude,
-            "Longitude": longitude,
-            "Descrição": descricao
-        }
-        leitura = leitura.append(nova_linha, ignore_index=True)
-        leitura.to_excel(CAMINHO_ARQUIVO, index=False)
-
-        sg.popup("Dados adicionados com sucesso!")
+        criar_arquivo_se_necessario()
+        
+        df = pd.read_excel(CAMINHO_ARQUIVO, dtype={"ID": int, "Latitude": float, "Longitude": float, "Descrição": str})
+        id = str(id).strip()
+        latitude = float(latitude)
+        longitude = float(longitude)
+        descricao = str(descricao).strip()
+        
+        if id in df["ID"].astype(str).values:
+            sg.popup_error(f"Erro: O ID {id} já existe no arquivo.")
+            return
+        
+        nova_linha = pd.DataFrame([[id, nome, latitude, longitude, descricao]], columns=df.columns)
+        
+        df = pd.concat([df, nova_linha], ignore_index=True)
+        df.to_excel(CAMINHO_ARQUIVO, index=False)
+        sg.popup("Dados adicionados com sucesso!")    
+        
+    except ValueError:
+        sg.popup_error("Erro: Certifique-se de que latitude e longitude são números válidos.")
     except Exception as e:
         sg.popup_error(f"Erro ao adicionar dados: {e}")
 
@@ -105,7 +121,22 @@ def run_app():
                     sg.popup_error("O arquivo está vazio ou não contém dados válidos.")
 
         if event == "Adicionar":
-            print("Adicionar")
+            id_ = values["-ID-"]
+            nome = values["-NOME-"]
+            latitude = values["-LATITUDE-"]
+            longitude = values["-LONGITUDE-"]
+            descricao = values["-DESCRICAO-"]
+
+            if id_ and nome and latitude and longitude and descricao:
+                adicionar_no_excel(id_, nome, latitude, longitude, descricao)
+                
+            leitura = vizualizar_dados(CAMINHO_ARQUIVO)
+            if not leitura.empty:
+                valores_tabela = leitura.astype(str).values.tolist()
+                janela["-TABLE-"].update(values=valores_tabela)
+
+            else:
+                sg.popup_error("Preencha todos os campos antes de adicionar.")
         
         if event == "Editar":
             print("Editar")
