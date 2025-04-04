@@ -1,4 +1,7 @@
 # GeoCoords
+<p align="center">
+  <img src="image.png" alt="GeoCoords">
+</p>
 GeoCoords é um aplicativo desenvolvido em Python para a visualização e análise de coordenadas geográficas a partir de arquivos CSV ou Excel. O aplicativo permite a leitura de dados, exibição em tabela e geração de mapas interativos com base nas coordenadas fornecidas.
 
 ## Funcionalidades
